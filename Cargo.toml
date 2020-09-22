@@ -1,0 +1,16 @@
+[package]
+name = "avocado-build-state"
+version = "0.1.0"
+authors = ["Edward George <edward.george@maersk.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.32"
+clap = "2.33.3"
+dkregistry = { git = "https://github.com/edwardgeorge/dkregistry-rs.git", branch = "integration" }
+#dkregistry = { path = "../dkregistry-rs" }
+env_logger = "0.7.1"
+log = "0.4.11"
+tokio = { version = "0.2.22", features = ["full"] }
