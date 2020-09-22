@@ -1,4 +1,4 @@
-use clap::{App, Arg};
+use clap::{App, AppSettings, Arg, SubCommand};
 use dkregistry::v2::Client;
 use std::fs::File;
 use std::path::Path;
@@ -62,38 +62,46 @@ async fn find_first_existing_image(
 fn main() -> anyhow::Result<()> {
     env_logger::init();
     let matches = App::new("Build State Tool")
-        .arg(
-            Arg::with_name("docker-config")
-                .short("c")
-                .takes_value(true)
-                .required(false),
-        )
-        .arg(
-            Arg::with_name("registry")
-                .long("registry")
-                .short("r")
-                .takes_value(true)
-                .required(true),
-        )
-        .arg(
-            Arg::with_name("images")
-                .index(1)
-                .required(true)
-                .multiple(true)
-                .min_values(1),
+        .setting(AppSettings::SubcommandRequiredElseHelp)
+        .subcommand(
+            SubCommand::with_name("query-registry")
+                .arg(
+                    Arg::with_name("docker-config")
+                        .short("c")
+                        .takes_value(true)
+                        .required(false),
+                )
+                .arg(
+                    Arg::with_name("registry")
+                        .long("registry")
+                        .short("r")
+                        .takes_value(true)
+                        .required(true),
+                )
+                .arg(
+                    Arg::with_name("images")
+                        .index(1)
+                        .required(true)
+                        .multiple(true)
+                        .min_values(1),
+                ),
         )
         .get_matches();
-    let registry = matches.value_of("registry").unwrap();
-    let config = matches.value_of("docker-config").map(Path::new);
-    let args = matches.values_of("images").unwrap();
-    let items = process_args(args);
+    if let Some(m) = matches.subcommand_matches("query-registry") {
+        let registry = m.value_of("registry").unwrap();
+        let config = m.value_of("docker-config").map(Path::new);
+        let args = m.values_of("images").unwrap();
+        let items = process_args(args);
 
-    let mut runtime = Runtime::new().unwrap();
-    let result =
-        runtime.block_on(async { find_first_existing_image(registry, config, items).await })?;
-    match result {
-        Some(item) => print!("{}", item.name()),
-        None => (),
+        let mut runtime = Runtime::new().unwrap();
+        let result =
+            runtime.block_on(async { find_first_existing_image(registry, config, items).await })?;
+        match result {
+            Some(item) => print!("{}", item.name()),
+            None => (),
+        }
+        Ok(())
+    } else {
+        panic!("Unknown subcommand");
     }
-    Ok(())
 }
