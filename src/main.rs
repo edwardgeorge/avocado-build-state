@@ -61,6 +61,7 @@ async fn find_first_existing_image(
 
 fn main() -> anyhow::Result<()> {
     env_logger::init();
+    let dockerconfigjson = shellexpand::tilde("~/.docker/config.json");
     let matches = App::new("Build State Tool")
         .setting(AppSettings::SubcommandRequiredElseHelp)
         .subcommand(
@@ -68,6 +69,7 @@ fn main() -> anyhow::Result<()> {
                 .arg(
                     Arg::with_name("docker-config")
                         .short("c")
+                        .default_value(&dockerconfigjson)
                         .takes_value(true)
                         .required(false),
                 )

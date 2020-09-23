@@ -1,6 +1,6 @@
 [package]
 name = "avocado-build-state"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Edward George <edward.george@maersk.com>"]
 edition = "2018"
 
@@ -13,4 +13,5 @@ dkregistry = { git = "https://github.com/edwardgeorge/dkregistry-rs.git", branch
 #dkregistry = { path = "../dkregistry-rs" }
 env_logger = "0.7.1"
 log = "0.4.11"
+shellexpand = "2.0.0"
 tokio = { version = "0.2.22", features = ["full"] }
