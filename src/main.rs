@@ -1,7 +1,8 @@
 use clap::{App, AppSettings, Arg, SubCommand};
 use dkregistry::v2::Client;
 use std::fs::File;
-use std::path::Path;
+use std::path::{Path, PathBuf};
+use thiserror::Error;
 use tokio::runtime::Runtime;
 
 mod args;
@@ -11,6 +12,12 @@ use crate::images::Item;
 
 const REGISTRY_CRED_USR: &str = "REGISTRY_CRED_USR";
 const REGISTRY_CRED_PSW: &str = "REGISTRY_CRED_PSW";
+
+#[derive(Error, Debug)]
+enum CustomError {
+    #[error("Error opening config file {0}: {1}")]
+    ConfigFileError(PathBuf, std::io::Error),
+}
 
 async fn create_and_auth_client(
     registry_host: &str,
@@ -22,7 +29,7 @@ async fn create_and_auth_client(
         .username(std::env::var(REGISTRY_CRED_USR).ok())
         .password(std::env::var(REGISTRY_CRED_PSW).ok());
     if let Some(cfg_path) = config_file {
-        let f = File::open(cfg_path)?;
+        let f = File::open(cfg_path).map_err(|e| CustomError::ConfigFileError(cfg_path.to_owned(), e))?;
         config = config.read_credentials(f);
     }
     let mut client = config.build()?;
