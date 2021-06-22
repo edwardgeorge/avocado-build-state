@@ -29,7 +29,8 @@ async fn create_and_auth_client(
         .username(std::env::var(REGISTRY_CRED_USR).ok())
         .password(std::env::var(REGISTRY_CRED_PSW).ok());
     if let Some(cfg_path) = config_file {
-        let f = File::open(cfg_path).map_err(|e| CustomError::ConfigFileError(cfg_path.to_owned(), e))?;
+        let f = File::open(cfg_path)
+            .map_err(|e| CustomError::ConfigFileError(cfg_path.to_owned(), e))?;
         config = config.read_credentials(f);
     }
     let mut client = config.build()?;
@@ -105,9 +106,8 @@ fn main() -> anyhow::Result<()> {
         let mut runtime = Runtime::new().unwrap();
         let result =
             runtime.block_on(async { find_first_existing_image(registry, config, items).await })?;
-        match result {
-            Some(item) => print!("{}", item.name()),
-            None => (),
+        if let Some(item) = result {
+            print!("{}", item.name())
         }
         Ok(())
     } else {

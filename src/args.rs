@@ -34,7 +34,7 @@ fn next(state: &State, item: &str) -> Item {
             }
         }
         State::Individual => {
-            if !item.find(':').is_some() {
+            if item.find(':').is_none() {
                 panic!("Argument is not provided with a tag '{}'", item);
             }
             Item::new(item)
